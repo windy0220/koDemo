@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
+    <h3 data-bind="text:title"></h3>
+    <p>FirstName:
+        <span data-bind="text:firstName"></span>
+    </p>
+    <p>
+        <input data-bind="value:firstName">
+    </p>
+    <p>LastName:
+        <span data-bind="text:lastName"></span>
+    </p>
+    <p>
+        <input data-bind="value:lastName">
+    </p>
+    <p>FulltName:
+        <span data-bind="text:fullName"></span>
+    </p>
+
+    <h2>Friends (
+        <span data-bind="text: friends().length"></span>)</h2>
+    <ul data-bind="template: {name: 'friendsTemplate', foreach: friends}"></ul>
+
+    <script id="friendsTemplate" type="text/html">
+        <li>
+            <input type="text" data-bind="value:name"> -
+            <button data-bind="click:remove">removeThis</button>
+            <input type="checkbox" data-bind="checked:isOnTwitter">
+            <input type="text" data-bind="value:twitterName, visible:isOnTwitter">
+        </li>
+    </script>
+
+    <button data-bind="click: addFriends, enable: friends().length<5" value="addFriends">addFriends</button>
+    <button data-bind="click: save">save</button>
+
+
+    <script>
+        function friend(name) {
+            return {
+                name: ko.observable(name),
+                isOnTwitter: ko.observable(false),
+                twitterName: ko.observable(),
+                remove: function () {
+                    viewModel.friends.remove(this);
+                }
+            }
+        }
+
+        var viewModel = {
+            title: 'NameList', //单向绑定
+            firstName: ko.observable(''), //双向绑定，可观察属性，注意：这将转变为一个方法
+            lastName: ko.observable(''),
+
+            //可观察数组
+            friends: ko.observableArray([new friend('Steve'), new friend('Annie')]),
+
+            //方法
+            addFriends: function () {
+                this.friends.push(new friend('newName'));
+            },
+
+            //ajax
+            save: function () {
+                console.log(ko.toJSON(this))
+                $.ajax({
+                    url: '@Url.Action("save ")',
+                    type: "post",
+                    data: ko.toJSON(this),
+                    contentType: "application/json",
+                    success: function (result) {
+                        alert(result.message)
+                    }
+                });
+            }
+        }
+
+
+        //依赖可观察属性
+        viewModel.fullName = ko.dependentObservable(function () {
+            return this.firstName() + "" + this.lastName(); //注意这里的值是个方法
+        }, viewModel);
+
+
+
+
+        //绑定到视图
+        ko.applyBindings(viewModel);
+    </script>
+
+</body>
+
+</html>
