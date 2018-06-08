@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
+    <script src="https://cdn.bootcss.com/knockout-validation/2.0.3/knockout.validation.js"></script>
+</head>
+
+<body>
+    name：
+    <input type="text" data-bind="value: name">
+    <br> tel:
+    <input type="text" data-bind="value: tel">
+    <br> add:
+    <input type="text" data-bind="value: add">
+    <br>
+    <p>My name is
+        <span data-bind="text: name"></span> I,m moblile phone number is
+        <span data-bind="text: tel"></span>.my home address is
+        <span data-bind="text: add"></span>
+    </p>
+
+    password:
+    <input type="text" data-bind="value: password"> confirmPassword:
+    <input type="text" data-bind="value: confirmPassword">
+
+
+    <script>
+        var viewModel = {
+            name: ko.observable().extend({
+                max: 3,
+                required: true,
+                pattern: {
+                    message: '最多3个字符'
+                }
+            }),
+            tel: ko.observable().extend({
+                pattern: {
+                    params: /^(?:04\d{2}|\({1}04\d{2}\){1})\s{0,1}(\d{3}(\s{0,1})\d{3})$/
+                },
+                required: true,
+                message: "Invalid mobile number."
+            }),
+            add: ko.observable(),
+            password: ko.observable().extend({
+                min: 6,
+                required: true,
+                pattern: {
+                    message: '最少6个字符'
+                }
+            }),
+            confirmPassword: ko.observable('').extend({
+                equal: this.password,
+                pattern: {
+                    message: '输入的密码不一致'
+                }
+            }, this)
+        }
+        ko.applyBindings(viewModel);
+    </script>
+</body>
+
+</html>
